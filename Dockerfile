@@ -13,6 +13,6 @@ EXPOSE 3000
 
 ENV PORT=3000
 ENV SPRING_BOOT_URL=http://user-classroom-crud.ahdjd3hgg6bccqcs.spaincentral.azurecontainer.io:8080
-ENV FLASK_URL=http://classroom-reservation-app.hzgzgkezgua8fecg.spaincentral.azurecontainer.io:5000
+ENV FLASK_URL=http://reservation-service.b6csczczbyf4dsan.spaincentral.azurecontainer.io:5000
 
 CMD ["node", "app.js"]

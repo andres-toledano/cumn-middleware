@@ -15,6 +15,10 @@ const springBootProxy = createProxyMiddleware({
     target: process.env.SPRING_BOOT_URL,
     changeOrigin: true,
     onProxyReq: attachBody,
+    selfHandleResponse: false,
+    onProxyRes: (proxyRes, req, res) => {
+        delete proxyRes.headers['transfer-encoding'];
+    },
 });
 
 const flaskProxy = createProxyMiddleware({
@@ -54,6 +58,11 @@ const routeSelector = async (req, res, next) => {
         }
 
         if (path.startsWith('/api/classroom')) {
+            if (req.method === 'GET') {
+                // Permitir GET para todos los usuarios
+                return springBootProxy(req, res, next);
+            }
+
             const isAdmin = await checkAdminRole(uid);
             if (!isAdmin) {
                 return res.status(403).json({ message: 'No tienes permisos para acceder a esta ruta' });
@@ -74,5 +83,3 @@ const routeSelector = async (req, res, next) => {
 };
 
 module.exports = routeSelector;
-
-
