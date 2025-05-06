@@ -25,6 +25,10 @@ const flaskProxy = createProxyMiddleware({
     target: process.env.FLASK_URL,
     changeOrigin: true,
     onProxyReq: attachBody,
+    selfHandleResponse: false,
+    onProxyRes: (proxyRes, req, res) => {
+        delete proxyRes.headers['transfer-encoding'];
+    },
 });
 
 const checkAdminRole = async (uid) => {
@@ -75,8 +79,15 @@ const routeSelector = async (req, res, next) => {
         }
 
         if (path.startsWith('/api/reservation')) {
+            if (path === '/api/reservation' && req.method === 'GET') {
+                const isAdmin = await checkAdminRole(uid);
+                if (!isAdmin) {
+                    return res.status(403).json({ message: 'No tienes permisos para acceder a esta ruta' });
+                }
+            }
             return flaskProxy(req, res, next);
         }
+
 
         return res.status(404).json({ message: 'Ruta no reconocida' });
     });
